@@ -1,4 +1,3 @@
-import time
 from functools import lru_cache
 
 
@@ -40,12 +39,21 @@ def check_all_combo(combo, towels):
         return 0
 
 
-towels, combos = get_input()
-possibles = 0
+def part1():
+    towels, combos = get_input()
+    possibles = 0
+    for combo in combos:
+        possibles += check_combo(combo, towels)
+    return possibles
 
-now = time.time()
-for combo in combos:
-    possibles += check_all_combo(combo, towels)
 
-print(f'Found {possibles} in {time.time()-now} time')
-print(f'Cache status: {check_all_combo.cache_info()}')
+def part2():
+    towels, combos = get_input()
+    possibles = 0
+    for combo in combos:
+        possibles += check_all_combo(combo, towels)
+    return possibles
+
+
+print(part1())
+print(part2())
