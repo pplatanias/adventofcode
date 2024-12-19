@@ -1,4 +1,8 @@
+# AoC inputs
 inputs/**/*.txt
+
+# vscode workspace files
+*-workspace
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
