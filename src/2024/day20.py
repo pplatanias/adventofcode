@@ -26,7 +26,7 @@ def walk(map, source):
     return path
 
 
-def get_shortcuts(min_shortcut, max_cheat_length):
+def get_shortcuts(path, min_shortcut, max_cheat_length):
     shortcuts = 0
     for i, start_node in enumerate(path):
         for j, dest_node in enumerate(path[i + 2:]):
@@ -45,5 +45,5 @@ with open('inputs/2024/day20.txt', 'r') as file:
 start = find_start(map)
 path = walk(map, start)
 
-print(get_shortcuts(100, 2))
-print(get_shortcuts(100, 20))
+print(get_shortcuts(path, 100, 2))
+print(get_shortcuts(path, 100, 20))
