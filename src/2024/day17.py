@@ -54,7 +54,7 @@ class Compiler:
         while ptr < len(self.commands):
             command = self.get_cmd(self.commands[ptr])
             if self.debug:
-                print(f'Running {command.__name__} with input {self.commands[ptr+1]}. \
+                print(f'Running {command.__name__} with input {self.commands[ptr + 1]}. \
                         A:{bin(self.A)[2:]}, B:{bin(self.B)[2:]}, C:{bin(self.C)[2:]}')
             new_ptr = command(self.commands[ptr + 1])
             if isinstance(new_ptr, int):
