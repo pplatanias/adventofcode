@@ -5,33 +5,19 @@ def mhash(num):
     return num
 
 
-def seq_runner(seq, solver_seq):
-    diff_only = [x[1] for x in seq]
-    w = len(solver_seq)
-    slidings = [tuple(diff_only[i:i + w]) for i in range(0, len(diff_only) - w + 1)]
-    for i in range(len(slidings)):
-        if solver_seq == slidings[i]:
-            return seq[i + w - 1][0], i
-    else:
-        return 0, 0
+def find_sequences_and_prices(buyer_seqs):
+    buyer_sequences_and_prices = []
 
-
-def find_uniq_sequences(seq):
-    w = 4
-    diff_only = [x[1] for x in seq]
-    slidings = [tuple(diff_only[i:i + w]) for i in range(0, len(diff_only) - w + 1)]
-    unique_slidings = set(slidings)
-    return unique_slidings
-
-
-def find_all_uniq_sequences(seqs):
-    all_unique = set()
-    for idx, seq in enumerate(seqs):
-        new_uniques = find_uniq_sequences(seq)
-        print(f'sequence {idx} had {len(new_uniques)} 4-length sequences')
-        all_unique = all_unique.union(new_uniques)
-    print(len(all_unique))
-    return all_unique
+    for buyer_seq in buyer_seqs:
+        buyer_dict = {}
+        slidings = [tuple(buyer_seq[i:i + 4]) for i in range(0, len(buyer_seq) - 4 + 1)]
+        for sliding in slidings:
+            sequence = tuple(x[1] for x in sliding)
+            price = sliding[-1][0]
+            if not buyer_dict.get(sequence):
+                buyer_dict[sequence] = price
+        buyer_sequences_and_prices.append(buyer_dict)
+    return buyer_sequences_and_prices
 
 
 with open('inputs/2024/day22.txt') as file:
@@ -54,17 +40,15 @@ for num in raw:
         seq.append((int(str(num)[-1]), int(str(num)[-1]) - seq[-1][0]))
     seqs.append(seq)
 
-uniq_seqs = find_all_uniq_sequences(seqs)
+buyer_dicts = find_sequences_and_prices(seqs)
+all_seqs = set()
+for buyer in buyer_dicts:
+    all_seqs.update(tuple(buyer.keys()))
 
-x_bananas = {}
-for uniq_seq in uniq_seqs:
+seq_and_bananas = {}
+for seq in all_seqs:
     bananas = 0
-    for idseq, seq in enumerate(seqs):
-        extra_bananas, i = seq_runner(seq, uniq_seq)
-        bananas += extra_bananas
-
-    print(f'uniq_seq {uniq_seq} found {bananas} total bananas')
-    x_bananas[uniq_seq] = bananas
-
-    # Let this run for a while and the max number you get here will be the solution. Ogre mode. I apologize.
-    print(max(x_bananas.values()), max(x_bananas, key=x_bananas.get))
+    for buyer in buyer_dicts:
+        bananas += buyer.get(seq, 0)
+    seq_and_bananas[seq] = bananas
+print(max(seq_and_bananas.values()))
