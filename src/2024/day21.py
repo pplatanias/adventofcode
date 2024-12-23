@@ -1,9 +1,11 @@
+# This file is not code, it is the equivalent of a scribbled notepad.
+# It works but im not refactoring it EVER.
+
 import heapq
 from collections import defaultdict
+from copy import deepcopy
 from functools import cache
 from itertools import pairwise, product
-from pprint import pp
-from copy import deepcopy
 
 keypad_nodes = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A']
 keypad_edges = {
@@ -225,12 +227,11 @@ def build_paths(prev, source, target):
 with open('inputs/2024/day21.txt', 'r') as file:
     codes = file.read().split('\n')
 
-# Part 1
+# Part 1 permutational solution
 s = 0
 for code in codes:
     a = set()
     res = recursive_solver_all_paths(code, 3)
-    #print(len(res), len(res[0]), len(res[0][0]), len(res[0][0][0]))
     for i in res:
         for j in i:
             minj = min(j, key=lambda x: len(x))
@@ -240,9 +241,6 @@ for code in codes:
     s += len(small) * int(code[:-1])
 print(s)
 
-
-
-
 # FIND ALL 100 NUMWORDS
 numwords = []
 for num in keypad_nodes:
@@ -251,27 +249,27 @@ for num in keypad_nodes:
         paths = build_paths(prev, num, num2)
         for path in paths:
             if path:
-                numwords.append(''.join(path)+'A')
-numwords = sorted(list(set(numwords)), key= lambda x: len(x))
+                numwords.append(''.join(path) + 'A')
+numwords = sorted(list(set(numwords)), key=lambda x: len(x))
 
 # FIND COSTS OF EACH NUMWORD
 numword_costs = {}
 for numword in numwords:
-    numword_costs[numword] = len(recursive_solver(numword, depth=5))
+    numword_costs[numword] = len(recursive_solver(numword, depth=7))
 
 # FIND DESCENDANTS OF EACH NUMWORD
 numword_descendants = {}
 for numword in numwords:
     next_numwords = recursive_solver(numword, depth=1)
     numword_dict = defaultdict(lambda: 0)
-    split_numwords = [e+'A' for e in next_numwords.split('A')]
+    split_numwords = [e + 'A' for e in next_numwords.split('A')]
     for next_numword in split_numwords[:-1]:
         numword_dict[next_numword] += 1
     numword_descendants[numword] = dict(numword_dict)
-numword_descendants['A'] = {'A':1}
+numword_descendants['A'] = {'A': 1}
 
 # MODIFY DESCENDANTS CHOICE OF WORDS BASED ON WORD COST
-for k,v in numword_descendants.items():
+for k, v in numword_descendants.items():
     if "v<A" in v.keys():
         v['<vA'] = v["v<A"]
         v.pop("v<A")
@@ -288,7 +286,18 @@ for k,v in numword_descendants.items():
         v['v>A'] = v[">vA"]
         v.pop(">vA")
 
-
+# FIX MISTAKES WHERE THE GOOD LINE GOES THROUGH VOID ON DIRPAD LAYER
+numword_descendants['^<A'] = {'<A': 1, '>>^A': 1, 'v<A': 1}
+numword_descendants['<^A'] = {'v<<A': 1, '>A': 1, '>^A': 1},
+numword_descendants['^^<A'] = {'<A': 1, 'A': 1, '>>^A': 1, 'v<A': 1}
+numword_descendants['^<<A'] = {'<A': 1, 'A': 1, '>>^A': 1, 'v<A': 1}
+numword_descendants['<^^A'] = {'v<<A': 1, 'A': 1, '>A': 1, '>^A': 1}
+numword_descendants['<<^A'] = {'v<<A': 1, 'A': 1, '>A': 1, '>^A': 1}
+numword_descendants['^^<<A'] = {'<A': 1, 'A': 2, '>>^A': 1, 'v<A': 1}
+numword_descendants['<<^^A'] = {'v<<A': 1, 'A': 2, '>A': 1, '>^A': 1}
+numword_descendants['^^^<A'] = {'<A': 1, 'A': 2, '>>^A': 1, 'v<A': 1}
+numword_descendants['<^^^A'] = {'v<<A': 1, 'A': 2, '>A': 1, '>^A': 1}
+numword_descendants['^^^<<A'] = {'<A': 1, 'A': 3, '>>^A': 1, 'v<A': 1}
 
 # FIND ALL 18 DIRWORDS
 dirwords = []
@@ -298,90 +307,92 @@ for dir1 in arrows_nodes:
         paths = build_paths(prev, dir1, dir2)
         for path in paths:
             if path:
-                dirwords.append(''.join(path)+'A')
-dirwords = sorted(list(set(dirwords)), key= lambda x: len(x))
+                dirwords.append(''.join(path) + 'A')
+dirwords = sorted(list(set(dirwords)), key=lambda x: len(x))
 
 # FIND COSTS OF EACH DIRWORD
 dirword_costs = {}
 for dirword in dirwords:
     dirword_costs[dirword] = len(recursive_solver(dirword, depth=5))
 
-
 # FIND DESCENDANTS OF EACH DIRWORD
 dirword_descendants = {}
 for dirword in dirwords:
     next_dirwords = recursive_solver(dirword, depth=1)
     dirword_dict = defaultdict(lambda: 0)
-    split_dirwords = [e+'A' for e in next_dirwords.split('A')]
+    split_dirwords = [e + 'A' for e in next_dirwords.split('A')]
     for next_dirword in split_dirwords[:-1]:
         dirword_dict[next_dirword] += 1
     dirword_descendants[dirword] = dict(dirword_dict)
-dirword_descendants['A'] = {'A':1}
+dirword_descendants['A'] = {'A': 1}
 
 # MANUALLY MODIFY DESCENDANTS CHOICE OF WORDS BASED ON WORD COST
 dirword_descendants = {
     '^A': {'<A': 1, '>A': 1},
     '>A': {'vA': 1, '^A': 1},
-    '<A': {'v<<A': 1, '>>^A': 1},   # good
-    'vA': {'<vA': 1, '^>A': 1},     # good
-    '>vA': {'vA': 1, '<A': 1, '^>A': 1}, # good
-    '^>A': {'<A': 1, 'v>A': 1, '^A': 1},  # good
+    '<A': {'v<<A': 1, '>>^A': 1},
+    'vA': {'<vA': 1, '^>A': 1},
+    '>vA': {'vA': 1, '<A': 1, '^>A': 1},
+    '^>A': {'<A': 1, 'v>A': 1, '^A': 1},
     '>>A': {'vA': 1, 'A': 1, '^A': 1},
-    '<<A': {'v<<A': 1, 'A': 1, '>>^A': 1},  # good
-    'v<A': {'<vA': 1, '<A': 1, '>>^A': 1},  # good
-    '<^A': {'v<<A': 1, '^>A': 1, '>A': 1},  # good
-    '>^A': {'vA': 1, '<^A': 1, '>A': 1},  # good
-    'v>A': {'<vA': 1, '>A': 1, '^A': 1}, # good
-    '^<A': {'<A': 1, '<vA': 1, '>>^A': 1},# good
-    '<vA': {'v<<A': 1, '>A': 1, '^>A': 1},  # good
-    '>^>A': {'vA': 1, '<^A': 1, 'v>A': 1, '^A': 1},   # goo
+    '<<A': {'v<<A': 1, 'A': 1, '>>^A': 1},
+    'v<A': {'<vA': 1, '<A': 1, '>>^A': 1},
+    '<^A': {'v<<A': 1, '>^A': 1, '>A': 1},
+    '>^A': {'vA': 1, '<^A': 1, '>A': 1},
+    'v>A': {'<vA': 1, '>A': 1, '^A': 1},
+    '^<A': {'<A': 1, 'v<A': 1, '>>^A': 1},
+    '<vA': {'v<<A': 1, '>A': 1, '^>A': 1},
+    '>^>A': {'vA': 1, '<^A': 1, 'v>A': 1, '^A': 1},
     'v<<A': {'<vA': 1, '<A': 1, 'A': 1, '>>^A': 1},
     '>>^A': {'vA': 1, 'A': 1, '<^A': 1, '>A': 1},
     '<v<A': {'v<<A': 1, '>A': 1, '<A': 1, '>>^A': 1},
     'A': {'A': 1}
-}
+}  # yapf: disable
 
 
 def find_len(worddict):
     length = 0
-    for k,v in worddict.items():
-        length += len(k)*v
+    for k, v in worddict.items():
+        length += len(k) * v
     return length
 
-# Manually calculate optimal layer2s of inputs (since NUMWORDS dict is too big and i havent replaced with only the good equivalents)
+
+# yapf:disable
+# Manually calculate optimal layer of inputs
 problems = [
-   {'^<<A':1 , '>A' :1, '^^>A' :1,  'vvvA'  :1},       #129A
-   {'^<<A':1 , '^^A':1, 'v>>A' :1,  'vvA'   :1},       #176A
-   {'^^^A':1 , '<A' :1, 'vA'   :1,  'vv>A'  :1},       #985A
-   {'^<<A':1 , '^^A':1, '>vvvA':1,  '>A'    :1},       #170A
-   {'<^^A':1 , 'vA' :1, '^^A'  :1,  'vvv>A' :1},       #528A
+    {'^<<A': 1, '>A': 1, '^^>A': 1, 'vvvA': 1},  # 129A
+    {'^<<A': 1, '^^A': 1, 'v>>A': 1, 'vvA': 1},  # 176A
+    {'^^^A': 1, '<A': 1, 'vA': 1, 'vv>A': 1},  # 985A
+    {'^<<A': 1, '^^A': 1, '>vvvA': 1, '>A': 1},  # 170A
+    {'<^^A': 1, 'vA': 1, '^^A': 1, 'vvv>A': 1},  # 528A
 ]
-problems_right = [129,176,985,170,528]
-#problems = [
-#    {'<A':1, '^A':1, '^^>A':1, 'vvvA':1},               #029A
-#    {'^^^A':1 , '<A':1, 'vvvA':1, '>A':1},              #980A
-#    {'^<<A':1 , '^^A':1, '>>A':1, 'vvvA':1},             #179A
-#    {'^^<<A':1 , '>A':2,        'vvA':1},             #456A
-#    {'^A':1 , '<<^^A':1, '>>A':1, 'vvvA':1},             #379A
-#]
-#problems_right = [29,980,179,456,379]
+problems_right = [129, 176, 985, 170, 528]
+# yapf:enable
+
+# problems = [
+#     {'<A':1, '^A':1, '^^>A':1, 'vvvA':1},               # 029A
+#     {'^^^A':1 , '<A':1, 'vvvA':1, '>A':1},              # 980A
+#     {'^<<A':1 , '^^A':1, '>>A':1, 'vvvA':1},            # 179A
+#     {'^^<<A':1 , '>A':2,        'vvA':1},               # 456A
+#     {'^A':1 , '<<^^A':1, '>>A':1, 'vvvA':1},            # 379A
+# ]
+# problems_right = [29,980,179,456,379]
 
 sum = 0
 for idprob, problem in enumerate(problems):
     start = problem
-    for i in range(24):         # I have tried: 23(27421869654560)   24(68151237758538)  25(169375413831066)  26(420946641162972)   25(163864046644922) 24(65933633763618)
+    for i in range(25):
         next_ = defaultdict(lambda: 0)
-        for k,v in start.items():
+        for k, v in start.items():
             if i == 0:
                 descendants = numword_descendants[k]
             else:
                 descendants = dirword_descendants[k]
             for kk, vv in descendants.items():
-                next_[kk] += vv*v
+                next_[kk] += vv * v
         start = deepcopy(next_)
 
     dictlen = find_len(next_)
-    print(f'{dictlen} * {problems_right[idprob]}, {next_}')
+    print(f'{dictlen} * {problems_right[idprob]}')
     sum += dictlen * problems_right[idprob]
-
 print(sum)
