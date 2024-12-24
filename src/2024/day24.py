@@ -26,7 +26,9 @@ target_out = sorted([key for key in register.keys() if key.startswith('z')], rev
 
 # Part 1
 curr_cmds = [cmd for cmd in cmds]
-while True:
+while curr_cmds:
+    # Loop through commands executing ones that are able to run and removing them
+    # from future loops.
     next_cmds = []
     for l_op, cmd, r_op, out in curr_cmds:
         l_val = register.get(l_op)
@@ -37,12 +39,10 @@ while True:
         else:
             next_cmds.append((l_op, cmd, r_op, out))
         curr_cmds = next_cmds
-    if all([register.get(z_target) is not None for z_target in target_out]):
-        break
 print(int(''.join(map(str, [register[zkey] for zkey in target_out])), 2))
 
 # Part 2
-with open('inputs/2024/day24modified.txt', 'r') as file:
+with open('inputs/2024/day24.txt', 'r') as file:
     starting, cmdrows = file.read().split('\n\n')
 
 cmds = []
@@ -51,6 +51,7 @@ for row in cmdrows.split('\n'):
     l_op, cmd, r_op = re.split(r' (XOR|OR|AND) ', left)
     cmds.append((l_op, cmd, r_op, out))
 
+# Lists of full adder components, each adder tracked by index n
 c_wires = [None] * 45
 s_wires = [None] * 45
 fa_xor_1 = [None] * 44
@@ -59,7 +60,7 @@ fa_and_2 = [None] * 44
 lists = [c_wires, s_wires, fa_and_1, fa_and_2, fa_and_2]
 
 
-def find_ith_full_adder(cmds, n):
+def find_nth_full_adder(cmds, n):
     nn = format(n, '02')
     xnn = 'x' + nn
     ynn = 'y' + nn
@@ -70,6 +71,7 @@ def find_ith_full_adder(cmds, n):
     fa_and_1_found = False
     fa_and_2_found = False
 
+    # commands are not sorted so for 5 components we need to loop at worst 5 times.
     quintuple_cmds = [x for x in cmds] * 5
     for l_op, cmd, r_op, out in quintuple_cmds:
         if l_op in [xnn, ynn] and r_op in [xnn, ynn] and cmd == 'XOR':
@@ -77,6 +79,7 @@ def find_ith_full_adder(cmds, n):
                 fa_xor_1[n] = out
                 fa_xor_1_found = True
             else:
+                # Initial half-adder
                 s_wires[0] = out
                 s_wire_found = True
 
@@ -85,6 +88,7 @@ def find_ith_full_adder(cmds, n):
                 fa_and_1[n] = out
                 fa_and_1_found = True
             else:
+                # Initial half-adder
                 c_wires[0] = out
                 c_wire_found = True
 
@@ -108,18 +112,19 @@ def find_ith_full_adder(cmds, n):
         return True
 
 
-for i in range(44):
-    found = find_ith_full_adder(cmds, i)
-    x = max(0, i - 5)
+for n in range(44):
+    found = find_nth_full_adder(cmds, n)
+    x = max(0, n - 5)
     if not found:
-        print(f'NOT FOUND at {i}')
+        print(f'Full adder {n} not found')
 
         # Inspect the state of the last full adder and correct mistakes on day24modified.txt
-        print(f'c_wires: {c_wires[x:i+2]}')
-        print(f's_wires: {s_wires[x:i+2]}')
-        print(f'fa_xor_1: {fa_xor_1[x:i+2]}')
-        print(f'fa_and_1: {fa_and_1[x:i+2]}')
-        print(f'fa_and_2: {fa_and_2[x:i+2]}')
+        # The patters should stand out pretty easily.
+        print(f'c_wires : {c_wires[x:n+2]}')
+        print(f's_wires : {s_wires[x:n+2]}')
+        print(f'fa_xor_1: {fa_xor_1[x:n+2]}')
+        print(f'fa_and_1: {fa_and_1[x:n+2]}')
+        print(f'fa_and_2: {fa_and_2[x:n+2]}')
         break
 
 # z07 <-> nqk
