@@ -114,17 +114,18 @@ def find_nth_full_adder(cmds, n):
 
 for n in range(44):
     found = find_nth_full_adder(cmds, n)
-    x = max(0, n - 5)
+    i = max(0, n - 5)
+    j = n + 1
     if not found:
         print(f'Full adder {n} not found')
 
         # Inspect the state of the last full adder and correct mistakes on day24modified.txt
         # The patters should stand out pretty easily.
-        print(f'c_wires : {c_wires[x:n+2]}')
-        print(f's_wires : {s_wires[x:n+2]}')
-        print(f'fa_xor_1: {fa_xor_1[x:n+2]}')
-        print(f'fa_and_1: {fa_and_1[x:n+2]}')
-        print(f'fa_and_2: {fa_and_2[x:n+2]}')
+        print(f'c_wires : {c_wires[i:j]}')
+        print(f's_wires : {s_wires[i:j]}')
+        print(f'fa_xor_1: {fa_xor_1[i:j]}')
+        print(f'fa_and_1: {fa_and_1[i:j]}')
+        print(f'fa_and_2: {fa_and_2[i:j]}')
         break
 
 # z07 <-> nqk
