@@ -43,12 +43,11 @@ int solve(bool part2 = false)
         matrix.push_back(row);
     }
 
-    std::vector<std::vector<char>> matrix2(100, std::vector<char>(100, '.'));
-
     size_t size_y = matrix.size();
     size_t size_x = matrix[0].size();
     for (int i = 0; i < 100; i++)
     {
+        std::vector<std::vector<char>> matrix2(100, std::vector<char>(100, '.'));
         for (size_t y = 0; y < size_y; y++)
         {
             for (size_t x = 0; x < size_x; x++)
@@ -60,20 +59,12 @@ int solve(bool part2 = false)
                     {
                         matrix2[y][x] = '#';
                     }
-                    else
-                    {
-                        matrix2[y][x] = '.';
-                    }
                 }
                 else
                 {
                     if (neighbors == 3)
                     {
                         matrix2[y][x] = '#';
-                    }
-                    else
-                    {
-                        matrix2[y][x] = '.';
                     }
                 }
             }
