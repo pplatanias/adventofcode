@@ -5,16 +5,17 @@
 #include <filesystem>
 #include <algorithm>
 
-int find_neighbors(std::vector<std::vector<char>> &matrix, int y, int x)
+std::vector<std::pair<int, int>> directions = {
+    {-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}};
+
+int find_neighbors(std::vector<std::vector<char>> &matrix, int y, int x, size_t size_y, size_t size_x)
 {
-    std::vector<std::pair<int, int>> directions = {
-        {-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}};
     int alive_neighbors = 0;
     int yy, xx;
     for (std::pair dir : directions)
     {
         yy = y + dir.first, xx = x + dir.second;
-        if (yy >= 0 && yy < matrix.size() && xx >= 0 && xx < matrix[yy].size())
+        if (yy >= 0 && yy < size_y && xx >= 0 && xx < size_x)
         {
             if (matrix[yy][xx] == '#')
             {
@@ -44,13 +45,15 @@ int solve(bool part2 = false)
 
     std::vector<std::vector<char>> matrix2(100, std::vector<char>(100, '.'));
 
+    size_t size_y = matrix.size();
+    size_t size_x = matrix[0].size();
     for (int i = 0; i < 100; i++)
     {
-        for (size_t y = 0; y < matrix.size(); y++)
+        for (size_t y = 0; y < size_y; y++)
         {
-            for (size_t x = 0; x < matrix[y].size(); x++)
+            for (size_t x = 0; x < size_x; x++)
             {
-                int neighbors = find_neighbors(matrix, y, x);
+                int neighbors = find_neighbors(matrix, y, x, size_y, size_x);
                 if (matrix[y][x] == '#')
                 {
                     if (neighbors == 2 || neighbors == 3)
@@ -83,7 +86,7 @@ int solve(bool part2 = false)
             matrix2[0][99] = '#';
             matrix2[99][99] = '#';
         }
-        std::swap(matrix, matrix2);
+        matrix = std::move(matrix2);
     }
 
     int count = 0;
