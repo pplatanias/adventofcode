@@ -1,68 +1,51 @@
-from collections import namedtuple
-from itertools import product
-from math import ceil
+from itertools import count, groupby, product
+from math import prod, sqrt
+from functools import cache
+from collections import defaultdict
 
-item = namedtuple('Item', ['cost', 'dmg', 'ar'])
-
-weapons = [
-    item(8, 4, 0),
-    item(10, 5, 0),
-    item(25, 6, 0),
-    item(40, 7, 0),
-    item(74, 8, 0),
-]
-
-armors = [
-    item(13, 0, 1),
-    item(31, 0, 2),
-    item(53, 0, 3),
-    item(75, 0, 4),
-    item(102, 0, 5),
-    item(0, 0, 0),  # no armor
-]
-
-rings = [
-    item(25, 1, 0),
-    item(50, 2, 0),
-    item(100, 3, 0),
-    item(20, 0, 1),
-    item(40, 0, 2),
-    item(80, 0, 3),
-    item(0, 0, 0),  # no ring
-]
-
-hp = 100
-boss_hp = 104
-boss_ar = 1
-boss_dmg = 8
-
-itemcombos = product(range(len(weapons)), range(len(armors)), range(len(rings)), range(len(rings)))
-
-costs_win = []
-costs_lose = []
-for combo in itemcombos:
-    cost = weapons[combo[0]].cost
-    cost += armors[combo[1]].cost
-    dmg = weapons[combo[0]].dmg
-    ar = armors[combo[1]].ar
-
-    prev_ring = None
-    for ring in combo[2:]:
-        if prev_ring != 6:
-            if ring == prev_ring:
-                continue
-        dmg += rings[ring].dmg
-        ar += rings[ring].ar
-        cost += rings[ring].cost
-        prev_ring = ring
-
-    ttk_boss = ceil(boss_hp / max(dmg - boss_ar, 1))
-    ttk_player = ceil(hp / max(boss_dmg - ar, 1))
-
-    if ttk_player >= ttk_boss:
-        costs_win.append((cost, combo))
+@cache
+def find_divisors(num):
+    top = int(sqrt(num))
+    divisors = []
+    for i in range(2,top+1):
+        if num % i == 0:
+            divisors.append(i)
+            cached_divisors = find_divisors(num//i)
+            divisors.extend(cached_divisors)
+            break
     else:
-        costs_lose.append((cost, combo))
+        return [num]
+    return divisors
 
-print(min(costs_win))
-print(max(costs_lose))
+def expand_divisors(divisors):
+    all_divs = set()
+    to_product = []
+    for divi in set(divisors):
+        pproduct = []
+        v = divisors.count(divi)
+        for p in range(v+1):
+            pproduct.append(divi**p)
+        to_product.append(pproduct)
+    all_divs.update([prod(x) for x in product(*to_product)])
+    return all_divs
+
+def solve_a(threshold):
+    for housenum in count(1,1):
+        divisors = find_divisors(housenum)
+        divset = expand_divisors(divisors)
+        if sum(divset) >= threshold:
+            break
+    return housenum
+
+def solve_b(threshold):
+    for housenum in count(1,1):
+        divisors = find_divisors(housenum)
+        divset = expand_divisors(divisors)
+        if sum([x for x in divset if housenum/x <= 50]) >= threshold:
+            break
+    return housenum
+
+threshold = 34000000
+
+print(solve_a(threshold/10))
+print(solve_b(threshold/11))
