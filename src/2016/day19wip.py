@@ -19,109 +19,33 @@ while x > 2:
     print(x, curr, next_)
 print(curr)
 
-# 100 : index18, elf19 // 512 : index294 elf295
 
 
-def get_antidia(i,x,iters):
-    real_len = len(x) - iters
-    small_list = [idx for idx,z in enumerate(x) if z>0]
 
-    real_i = small_list.index(i)
-    starting_idx = (real_i+(real_len)//2) % real_len
-    return small_list[starting_idx]
-
-
-x = [1]*100
-i = 0
-iters = 0
-while len([z for z in x if z>0]) > 1:
-    if x[i] > 0:
-        idx = get_antidia(i,x, iters)
-        x[i] += x[idx]
-        x[idx] = 0
-        iters+=1
-
-    i = (i + 1) % (len(x)-iters)
-    print(i)
-    print(x)
-
-
-"""
-0004060
-0004060
-
-111111111111111111....
-202020202020202020....
-2 2 2 2 2 2 2 2 2...
-0 0 4 0 4 0 4 0 8...
-    4   4   4   8...
-    8   0   B   0...
-    8       B...
-    X
+#x = [1] * 3001330 + 1
+#x = list(range(1,101))
+x = list(range(1,6+1))
+print(f'start: {x}')
+import time
+now = time.time()
+while len(x) > 1:
+    i = 0
+    old_idx = 0
+    for idx in range(len(x)):
+        if x[idx] != 0:
+            #x[idx] += x[((len(x))//2)+i]
+            x[(((len(x)-i)//2)+i+idx) % (len(x))] = 0
+            i+=1
+        else:
+            break
+        print(x)
+        old_idx = idx
+    cursor = x[old_idx]
+    x = [z for z in x if z > 0]
+    cursor = x.index(cursor)
+    x = x[cursor+1:] + x[:cursor+1]
+    print('cut zeros and rotate to cursor=', x)
 
 
-111111111111111111111111111111111111....
-202020202020202020202020202020202020....
-2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 ...
-4 0 4 0 4 0 4 0 4 0 4 0 4 0 4 0 4 0...
-4   4   4   4   4   4   4   4   4...
-0   0   8   0   8   0   8   0   B...
-        8       8       8       B...
-        F       0       F4      0
-        F               F4
-        FU
-
-
-11111111111111111111....
-20202020202020202020....
-2 2 2 2 2 2 2 2 2 2 ...
-4 0 4 0 4 0 4 0 4 0 ...
-4   4   4   4   4...
-0   0   4   0   B...
-        4       B...
-        X
-
-111111111111111111111111111111111111111111....
-202020202020202020202020202020202020202020....
-
-2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 ...
-0 0 4 0 4 0 4 0 4 0 4 0 4 0 4 0 4 0 4 0 4 ...
-
-    4   4   4   4   4   4   4   4   4   4 ...
-    8   0   8   0   8   0   8   0   8   0 ...
-
-    8       8       8       8       8     ...
-    0       0       F       0       FF    ...
-
-                    F               FF    ...
-                    FFF             0     ...
-
-# 32
-11111111111111111111111111111111.. curr 1 next 2  step 1
-20202020202020202020202020202020.. curr 1 next 3  step 2
-
-2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 ..
-4 0 4 0 4 0 4 0 4 0 4 0 4 0 4 0 .. curr 1 next 5  step 4
-
-4   4   4   4   4   4   4   4   ..
-8   0   8   0   8   0   8   0   .. curr 1 next 9  step 8
-
-8       8       8       8       ...
-F       0       F       0       .. curr 1 next 17 step 16
-
-F               F               ..
-F               0               .. curr 1 next x
-
-
-========================
-01234  len 5  5//2 = 2
-01234  len 5  5//2 = 2 . 3 + 2 mod 5 = 0
-
-11111111111111111111
-111111111 1111111111
-
-111111111  111111111
-
-111111111111111111
-
-"""
+print(x)
+print(f'{time.time()-now}')
