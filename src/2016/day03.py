@@ -1,6 +1,6 @@
 from itertools import batched
 
-with open('inputs/2016/day3.txt','r') as file:
+with open('inputs/2016/day3.txt', 'r') as file:
     matrix = [[int(y) for y in x.split()] for x in file.read().split('\n')]
 
 # Part 1

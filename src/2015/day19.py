@@ -1,13 +1,13 @@
-from collections import defaultdict
 import re
+from collections import defaultdict
 
-with open('inputs/2015/day19.txt','r') as file:
+with open('inputs/2015/day19.txt', 'r') as file:
     replacements, genome = file.read().split('\n\n')
     replacements = replacements.split('\n')
 
 genes = defaultdict(list)
 revgenes = {}
-for source,dest in [x.split(' => ') for x in replacements]:
+for source, dest in [x.split(' => ') for x in replacements]:
     genes[source].append(dest)
     revgenes[dest] = source
 
@@ -24,4 +24,4 @@ words = 0
 for ch in genome:
     if ch.isupper():
         words += 1
-print(words - genome.count('Rn') - genome.count('Ar') - (genome.count('Y')*2) - 1)
+print(words - genome.count('Rn') - genome.count('Ar') - (genome.count('Y') * 2) - 1)

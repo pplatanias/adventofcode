@@ -33,8 +33,9 @@ class Boss(Actor):
 
 
 class Player(Actor):
+
     def __init__(self, hp, mp, ar=0, dmg=0, verbose=False, seed=None):
-        super().__init__(hp,mp,ar,dmg,verbose=verbose)
+        super().__init__(hp, mp, ar, dmg, verbose=verbose)
         self.seed = seed
         self.mp_spent = 0
         self.spells = [self.mm, self.drain, self.shield, self.poison, self.recharge]
@@ -69,7 +70,7 @@ class Player(Actor):
         self.hp += 2
 
     def shield(self, target):
-        if any(ef.name=='shielded' for ef in self.effects):
+        if any(ef.name == 'shielded' for ef in self.effects):
             return 1
 
         self.mp -= 113
@@ -94,7 +95,7 @@ class Player(Actor):
         self.effects.append(effect)
 
     def poison(self, target):
-        if any(ef.name=='poisoned' for ef in target.effects):
+        if any(ef.name == 'poisoned' for ef in target.effects):
             return 1
         self.mp -= 173
         self.mp_spent += 173
@@ -108,7 +109,7 @@ class Player(Actor):
         target.effects.append(effect)
 
     def recharge(self, target):
-        if any(ef.name=='recharging' for ef in self.effects):
+        if any(ef.name == 'recharging' for ef in self.effects):
             return 1
         self.mp -= 229
         self.mp_spent += 229
@@ -121,6 +122,7 @@ class Player(Actor):
         effect = Effect(5, partial(recharging, self), name="recharging")
         self.effects.append(effect)
 
+
 class Effect:
 
     def __init__(self, lifetime, executable, setup=None, teardown=None, name=None):
@@ -129,7 +131,7 @@ class Effect:
         self.teardown = teardown
         self.lifetime = lifetime
         if setup:
-           setup()
+            setup()
 
     def run(self):
         if self.lifetime > 1:
@@ -165,7 +167,6 @@ class GameState:
         else:
             print(f'Gameover, player won, spent {self.player.mp_spent}')
 
-
     def run_game(self):
         attacker = self.player
         defender = self.boss
@@ -184,11 +185,10 @@ class GameState:
         if gameover == 2:
             return self.player.mp_spent
 
-
     def check_game_over(self):
         if self.player.hp <= 0 or self.player.mp <= 0:
             return 1
-        if self.boss.hp <=0:
+        if self.boss.hp <= 0:
             return 2
         return 0
 
@@ -217,15 +217,16 @@ class GameState:
         if gameover:
             return gameover
 
-#wins = []
-#for moves in range(9,10):
-#    seeds = product([0,1,2,3,4],repeat=moves)
-#    for seed in seeds:
-#        game = GameState(seed = ''.join([str(s) for s in seed]))
-#        result = game.run_game()
-#        if result:
-#            wins.append((result,seed))
-#print(min(wins))
+
+wins = []
+for moves in range(13):
+    seeds = product([0, 1, 2, 3, 4], repeat=moves)
+    for seed in seeds:
+        game = GameState(seed=''.join([str(s) for s in seed]))
+        result = game.run_game()
+        if result:
+            wins.append((result, seed))
+print(min(wins))
 #
 #wins = []
 #for moves in range(9,10):
@@ -237,5 +238,5 @@ class GameState:
 #            wins.append((result,seed))
 #print(min(wins))
 
-game = GameState(seed = '342342300', verbose=True)
+game = GameState(seed='342342300', verbose=True)
 game.run_game()
